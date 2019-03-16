@@ -6,10 +6,10 @@ with warnings.catch_warnings():
     import sklearn
     import data_extract as de
 
-def load():
-    #Load points per game (ppg), offensive efficiency (oe), defensive efficiency (de), 
+def load(year):
+    # Load points per game (ppg), offensive efficiency (oe), defensive efficiency (de), 
     # field goal efficiency (fge), offensive rebounds (or), and rpi
-    knowledge = de.constructKnowledge(['ppg', 'oe', 'de', 'fge', 'or', 'rpi'])
+    knowledge = de.constructKnowledge(['ppg', 'oe', 'de', 'fge', 'or', 'rpi'], year)
     clf = de.load_classifier()
     return knowledge, clf
 
@@ -59,5 +59,5 @@ def question(clf, knowledge):
         return
 
 #Load the knowledge and the classifier
-knowledge, clf = load()
+knowledge, clf = load("2017-2018")
 question(clf, knowledge)

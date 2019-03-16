@@ -17,10 +17,10 @@ Takes a list of statistics about basketball teams and opens the corresponding .c
 Compiles these files into a single dictionary 
 Team name is the key and each value is a dictionary with a key of the statistic and the value
 """
-def constructKnowledge(files):
+def constructKnowledge(files, year):
     dataSet = dict()
     for name in files:
-        csvFile = open('Data/'+name+'.csv', 'rU')
+        csvFile = open('Data/'+year+"/"+name+'.csv', 'rU')
         reader = csv.reader(csvFile)
         for row in reader:
             #If the knowledgebase does not have the current team, create an empty dictionary for it
@@ -37,7 +37,7 @@ Each feature is calculated by substracting the statistic for the second team lis
 Each label is either a 1 or a 2 indicating that "Team One" won or "Team Two" won
 """
 def breakData():
-    csvFile = open('Data/gameData.csv', 'rU')
+    csvFile = open('Data/train.csv', 'rU')
     reader = csv.reader(csvFile)
 
     features = []
