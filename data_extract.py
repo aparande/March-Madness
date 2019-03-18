@@ -74,7 +74,8 @@ def check_classifier(clf, features, labels):
 
 #Loads the classifer from a pickle
 def load_classifier(name="optimal.pkl"):
-    return pickle.load(open(name))
+    with open(name, "rb") as f:
+        return pickle.load(f)
 
 #Helper function to save the classifier to a pickle file
 def save_classifier(clf, features, labels, name="optimal.pkl"):
