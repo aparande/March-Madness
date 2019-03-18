@@ -9,7 +9,7 @@ with warnings.catch_warnings():
 def load(year):
     # Load points per game (ppg), offensive efficiency (oe), defensive efficiency (de), 
     # field goal efficiency (fge), offensive rebounds (or), and rpi
-    knowledge = de.constructKnowledge(['ppg', 'oe', 'de', 'fge', 'or', 'rpi'], year)
+    knowledge = de.construct_knowledge(['ppg', 'oe', 'de', 'fge', 'or', 'rpi'], year)
     clf = de.load_classifier()
     return knowledge, clf
 
@@ -51,7 +51,7 @@ def question(clf, knowledge):
     team_two = raw_input("Enter Team Two: ")
 
     message = prediction(team_one, team_two, knowledge, clf)
-    print message
+    print(message)
     shouldContinue = raw_input("Do you want to continue (Y/N): ")
     if shouldContinue == "Y":
         question(clf, knowledge)
