@@ -70,5 +70,5 @@ def question(clf, knowledge):
         return
 
 #Load the knowledge and the classifier
-knowledge, clf = load("2018-2019", "adaboost_clf.pkl")
+knowledge, clf = load("2018-2019", "svm.pkl")
 question(clf, knowledge)
