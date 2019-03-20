@@ -26,7 +26,8 @@ def query(team, knowledge):
 #Calculates the features of the selected game by subtracting the statistics of the two teams
 def gameData(one_data, two_data, seed_one, seed_two):
     data = one_data - two_data
-    if seed_one > seed_two:
+    
+    if seed_one < seed_two:
         data = np.append(data, 1)
     elif seed_two < seed_one:
         data = np.append(data, 2)
@@ -48,7 +49,7 @@ def prediction(team_one, team_two, seed_one, seed_two, knowledge, clf):
     feature_space = np.reshape(feature_space, (1, -1))
     #Use the classifier to predict the winner. 1 for team one and 2 for team two
     pred = clf.predict(feature_space)
-    if pred[0] == '1':
+    if pred[0] == 1:
         return team_one
     else:
         return team_two
