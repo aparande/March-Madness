@@ -57,20 +57,38 @@ label_new = 2 if label_old = 1 else 1
 # Results
 ## 2018 Tournament
 - Successfully predicted 27/32 games in the First Round of the 2018 Tournament.
- - It scored in the 75th percentile of ESPN Bracket Challenge users
- - SVM classifier trained on ppg, oe, de, fge, or, rpi
+- It scored in the 75th percentile of ESPN Bracket Challenge users
+- SVM classifier trained on ppg, oe, de, fge, or, rpi
 
-Support Vector Machines generally perform well with binary classification in a multi-dimensional space.
+I chose an SVM because they generally perform well with binary classification in a multi-dimensional space.
 During the development of this project, it consistently performed better than Decision Trees, Naive Bayes Classifiers, and Random Forests.
 The optimal hyperparameters were determined using 10-fold cross-validation techniques.
-The algorithm itself comes from Sci-Kit learn
+The algorithm itself comes from Sci-Kit Learn.
+
+![2018 Raw Data](imgs/2018-data.png)
+
+The raw data shows that the SVM fared much better than purely random choices as well as Random BPI, which makes random choices weighted with ESPN's BPI metric. The SVM likely would have fared better than the bracket I would have created because the "corrections" I made to the model for the "Human-SVM" model decreased it's score slightly.
+
+![2018 Cumulative Scores](imgs/2018-scores.png)
+
+This graph shows how the each bracket accumulated points as the rounds progressed. The SVM had a steady upwards trajectory, indicating that it was making good choices in early rounds since fewer errors were propagating to later ones. This indicates it might have fared better if a one seed had not lost to a sixteen seed for the first time in history (UVa vs Virginia) in the first round.
 
 ## 2019 Tournament
 - Used an ensemble of classifiers
     - Adaboost Classifier and Support Vector Machine trained on ppg, oe, de, fge, or, rpi, epr, winp, seed
     - Support Vector Machine trained on ppg, oe, de, fge, or, rpi, epr, winp
-    - Results TBD
 
-Both Adaboost and the SVM performed the best on the dataset. They had the highest average accuracy in 10-fold cross-validation with the lowest variance in accuracy. Logically, this makes sense because an SVM is merely finding the best separation plane of the data, and adaboost is finding the best separation boundaries for each features.
+Both Adaboost and the SVM performed the best on the dataset. They had the highest average accuracy in 10-fold cross-validation with the lowest variance in accuracy. Logically, this makes sense because an SVM is merely finding the best separation plane of the data, and Adaboost is finding the best separation boundaries for each features.
+
+The model I predicted would fare the best was the ensemble of classifiers which I mentioned above. I also kept track of how each individual classifier fared.
+
+![2018 Raw Data](imgs/2019-data.png)
+
+All models fared significantly better than if they had made random choices. They also fared better than a human with minimal knowledge about college basketball (me). However, for the most part, they did not do better than the bracket which merely picked the Highest Seed to win. Only the SVM which did not take into account seed fared better than the High Seed bracket. This might indicate that taking into account seed does not allow the model to generalize well because statistically, seeding is a strong indicator of who will win a game. Another interesting point is that the ensemble method did the worst of all the models. It is unclear why this was the case.
+
+![2018 Cumulative Scores](imgs/2019-scores.png)
+The graph of cumulative scores demonstrates that almost brackets fared mostly the same in the early rounds, but towards, the end, the SVM which did not take seed into account won because fewer error's propagated throughout the rounds.
+
+
 
 
