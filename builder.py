@@ -1,8 +1,15 @@
-from data_extract import *
+from classifier_utils import load_classifier
 import numpy as np
+
 class BracketBuilder:
-    def __init__(self, year, clf_files, use_seeds):
-        self.knowledge = construct_knowledge([year])[year]
+    def __init__(self, season_data, clf_files, use_seeds, data_means=None, data_stds=None):
+        """
+        season_data is a dictionary mapping team name to team stats
+        """
+        self.knowledge = season_data
+        self.data_means = data_means
+        self.data_stds = data_stds
+
         self.clfs = []
         for filename in clf_files:
             self.clfs.append(load_classifier(name=filename))
@@ -26,48 +33,38 @@ class BracketBuilder:
             return
 
     def prediction(self, team_one, team_two, seed_one, seed_two):
-        dataOne = self.query(team_one)
-        dataTwo = self.query(team_two)
+        dataOne = self.knowledge.get(team_one, None)
+        dataTwo = self.knowledge.get(team_two, None)
+
         if dataOne is None:
-            return "Could not find %s in knowledgebase" % team_one
+            return f"Could not find {team_one} in knowledgebase" 
         if dataTwo is None:
-            return "Could not find %s in knowledgebase" % team_two
+            return f"Could not find {team_two} in knowledgebase"
 
         #Calculate the feature
         feature_space = self.gameData(dataOne, dataTwo, seed_one, seed_two)
-        feature_space = np.reshape(feature_space, (1, -1))
         #Use the classifier to predict the winner. 1 for team one and 2 for team two
         votes = []
 
         for clf, use_seed in zip(self.clfs, self.use_seeds):
             features = feature_space
             if not use_seed:
-                features = features[:, :-1]
-            votes.append(clf.predict(features)[0])
+              features = features[:, 1:]
+            votes.append(clf.predict(features))
 
-        avgVote = sum(votes) / len(votes)
+        avgVote = np.mean(votes)
         print(votes)
-        if avgVote > 1.5:
-            return team_two
-        else:
+        if avgVote > 0:
             return team_one
+        else:
+            return team_two
 
     def gameData(self, one_data, two_data, seed_one, seed_two):
         data = one_data - two_data
-        
-        if seed_one and seed_two:
-            if seed_one < seed_two:
-                data = np.append(data, 1)
-            elif seed_two < seed_one:
-                data = np.append(data, 2)
-            else:
-                data = np.append(data, random.randint(1, 2))
+        data = np.hstack([[int(seed_one) - int(seed_two)], data])
+        if self.data_means is not None:
+          data = data - self.data_means
+        if self.data_stds is not None:
+          data = data / self.data_stds
+        return data.reshape((1, -1)) # SKLearn Requirement
 
-        return data
-
-    def query(self, team):
-        team_stats = self.knowledge.loc[self.knowledge["Team Name"] == team].iloc[:, 1:]
-        if len(team_stats.index) == 0:
-            return None
-
-        return team_stats.values
