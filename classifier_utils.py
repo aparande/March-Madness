@@ -6,6 +6,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, classification_report
 
 import pickle
+import torch
 
 #Cross validates the classifier to check accuracy
 def check_classifier(clf, features, labels):
@@ -18,8 +19,11 @@ def check_classifier(clf, features, labels):
 
 #Loads the classifer from a pickle
 def load_classifier(name="optimal.pkl"):
+  if name.split(".")[-1] == "pkl":
     with open(name, "rb") as f:
-        return pickle.load(f)
+      return pickle.load(f)
+  else:
+    return torch.load(name)
 
 #Helper function to save the classifier to a pickle file
 def save_classifier(clf, features, labels, name="optimal.pkl"):

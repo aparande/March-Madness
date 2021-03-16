@@ -1,0 +1,64 @@
+Gonzaga,1
+Norfolk St,16
+Oklahoma,8
+Missouri,9
+Creighton,5
+UC Santa Barbara,12
+Virginia,4
+Ohio,13
+USC,6
+Wichita St,11
+Kansas,3
+E Washington,14
+Oregon,7
+VCU,10
+Iowa,2
+Grand Canyon,15
+Michigan,1
+Mt St Mary's,16
+LSU,8
+St Bonaventure,9
+Colorado,5
+Georgetown,12
+Florida St,4
+UNC Greensboro,13
+BYU,6
+UCLA,11
+Texas,3
+Abilene Chr,14
+Connecticut,7
+Maryland,10
+Alabama,2
+Iona,15
+Baylor,1
+Hartford,16
+North Carolina,8
+Wisconsin,9
+Villanova,5
+Winthrop,12
+Purdue,4
+North Texas,13
+Texas Tech,6
+Utah St,11
+Arkansas,3
+Colgate,14
+Florida,7
+Virginia Tech,10
+Ohio St,2
+Oral Roberts,15
+Illinois,1
+Drexel,16
+Loyola-Chicago,8
+Georgia Tech,9
+Tennessee,5
+Oregon St,12
+Oklahoma St,4
+Liberty,13
+San Diego St,6
+Syracuse,11
+West Virginia,3
+Morehead St,14
+Clemson,7
+Rutgers,10
+Houston,2
+Cleveland St,15
