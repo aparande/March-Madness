@@ -6,7 +6,7 @@ import sklearn.utils
 
 FEATURES = ["Seed", "PPG", "WPP", "OE", "DE", "FGE", "OR_per", "EPR", "Margin"]
 
-def build_dataset(relative_path=".", normalize = False, one_hot_labels = False):
+def build_dataset(relative_path=".", out_path="../2022", normalize = False, one_hot_labels = False):
   """
   Builds a dataset using the Kaggle Data
   relative_path is the path to the data directory
@@ -34,14 +34,14 @@ def build_dataset(relative_path=".", normalize = False, one_hot_labels = False):
 
   if normalize:
     trainX = (trainX - trainX.mean(axis=0)) / trainX.std(axis=0)
-    np.save(f"{relative_path}/2021/data-mean.npy", trainX.mean(axis=0))
-    np.save(f"{relative_path}/2021/data-std.npy", trainX.std(axis=0))
+    np.save(f"{out_path}/data-mean.npy", trainX.mean(axis=0))
+    np.save(f"{out_path}/data-std.npy", trainX.std(axis=0))
   return trainX, trainY
 
-def build_team_lookup():
+def build_team_lookup(year):
   teams = pd.read_csv("data/kaggle_data/MTeams.csv").drop(labels=["FirstD1Season", "LastD1Season"], axis=1)
   stats = pd.read_csv("data/processed-data/all-season-stats.csv")
-  stats = stats[stats.Season == 2020]
+  stats = stats[stats.Season == year]
 
   lookup = pd.merge(teams, stats, on="TeamID", how="inner")
   lookup_dict = dict()

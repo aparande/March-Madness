@@ -12,7 +12,7 @@ The models are trained on the following statistics:
 
 These features were chosen because they represent a diverse range of metrics about teams including both offense and defense. When plotting each game's data (more on how this is calculated below) as a density function and grouping based on which team wins, these metrics show a degree of separability in the means, indicating they can help distinguish between wins and upsets (see Jupyter notebook for more detail).
 
-![Density Plots](imgs/data_separability.png)
+![Density Plots](../imgs/data_separability.png)
 
 Since the classifier is meant to predict the outcome of a game, each game needs a numerical representation.
 If we arbitrarily assign one team to be Team One and the other to be Team Two, then a way to represent the game is the difference between corresponding statistics for each team.
