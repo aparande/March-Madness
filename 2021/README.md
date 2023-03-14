@@ -46,5 +46,6 @@ Here, the Neural Network which took into account seed did best, which is interes
 This means the previous explanation that incorporating seed skewed results since seed was very correlated with winning is not as clear cut.
 
 ![2021 Cumulative Scores](../imgs/2021-scores.png)
+
 The graph of cumulative scores demonstrates that almost brackets fared mostly the same in the early rounds, but towards, the end, the Neural Network won because fewer error's propagated throughout the rounds.
 This is identical to the reason why the the SVM in 2019 fared better. This suggests a good strategy for building good brackets is to optimize for "robustness" instead of trying to predict every game correctly.

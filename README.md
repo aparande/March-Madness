@@ -28,3 +28,4 @@ All data was taken from [Kaggle](https://www.kaggle.com/c/ncaam-march-mania-2021
 - [2018 Results](2018/README.md)
 - [2019 Results](2019/README.md)
 - [2021 Results](2021/README.md)
+- [2022 Results](2022/README.md)

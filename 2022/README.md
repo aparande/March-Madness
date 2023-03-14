@@ -60,6 +60,7 @@ model correctly predicted 20 of the first 32 games, which is not great, but
 still better than random.
 
 ![2022 Cumulative Scores](../imgs/2022-scores.png)
+
 The graph of cumulative scores again demonstrates that almost brackets fared
 mostly the same in the early rounds, but towards, the end, the Random Seed
 Weighted strategy minimized propogation errors, which is why the Neural Network
