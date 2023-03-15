@@ -14,6 +14,12 @@ class Predictors(enum.Enum):
     def __str__(self) -> str:
         return self.value
 
+class ProbabilityModels(enum.Enum):
+    SKLEARN = "sklearn"
+
+    def __str__(self) -> str:
+        return self.value
+
 class HighSeedPredictor(bracket_types.PredictionFunction):
     def __init__(self, seed_lookup: dict[str, bracket_types.Seed]) -> None:
         self.seed_lookup = seed_lookup
