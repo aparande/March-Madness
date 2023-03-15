@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import NamedTuple, cast
 
 import numpy as np
@@ -66,3 +67,35 @@ def get_seeds(year: int, relative_path='.') -> dict[str, bracket_types.Seed]:
 
   return lookup_dict
 
+def build_seed_win_probabilities(relative_path='.') -> dict[int, dict[int, float]]:
+    seeds = pd.read_csv(f'{relative_path}/data/kaggle_data/MNCAATourneySeeds.csv')
+    seeds['Seed'] = seeds['Seed'].transform(lambda x: int(x[1:3]))
+
+    games_df = pd.read_csv(f"{relative_path}/data/kaggle_data/MNCAATourneyCompactResults.csv")
+    games_df = games_df[["Season", "WTeamID", "LTeamID"]]
+
+    games_with_seeds = games_df.merge(seeds, left_on=['Season', 'WTeamID'], right_on=['Season', 'TeamID'], how='inner')
+    games_with_seeds['WSeed'] = games_with_seeds['Seed']
+    games_with_seeds = games_with_seeds.drop(labels=['Seed', 'TeamID'], axis=1)
+    games_with_seeds = games_with_seeds.merge(seeds, left_on=['Season', 'LTeamID'], right_on=['Season', 'TeamID'], how='inner')
+    games_with_seeds['LSeed'] = games_with_seeds['Seed']
+    games_with_seeds = games_with_seeds.drop(labels=['Seed', 'TeamID'], axis=1)
+
+    probs = defaultdict(dict)
+    for i in range(1, 16):
+        for j in range(i + 1, 17):
+            # Compute how many times seed i has beaten seed j
+            wins_df = games_with_seeds[(games_with_seeds.WSeed == i) & (games_with_seeds.LSeed == j)]
+            lose_df = games_with_seeds[(games_with_seeds.LSeed == i) & (games_with_seeds.WSeed == j)]
+
+            win_count = len(wins_df)
+            lose_count = len(lose_df)
+            game_count = win_count + lose_count
+
+            if game_count == 0:
+                continue
+
+            probs[i][j] = win_count / game_count
+            probs[j][i] = lose_count / game_count
+
+    return probs

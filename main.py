@@ -111,7 +111,7 @@ def compare_brackets(args: argparse.Namespace) -> None:
     if args.truth_model == predictors.Predictors.SKLEARN_SEED:
         assert args.truth_model_path, f'--truth-model-path is required for {args.truth_model}'
         predictor = _create_sklearn_seed_bracket_predictor(args.year, args.truth_model_path, seed_lookup)
-    elif args.predictor == predictors.Predictors.HIGH_SEED:
+    elif args.truth_model == predictors.Predictors.HIGH_SEED:
         predictor = _create_high_seed_bracket_predictor(args, seed_lookup)
     else:
         predictor = _create_high_seed_bracket_predictor(args, seed_lookup)
@@ -120,9 +120,10 @@ def compare_brackets(args: argparse.Namespace) -> None:
         assert args.probability_model_path, f'--probability-model-path is required for {args.probability_model}'
         featurizer = _create_sklearn_featurizer(args.year, seed_lookup)
         prob_func = predictors.SkLearnProbabilityFunction(args.probability_model_path, featurizer)
+    elif args.probability_model == predictors.ProbabilityModels.HIGH_SEED:
+        prob_func = predictors.HighSeedProbabilityFunction(seed_lookup)
     else:
-        featurizer = _create_sklearn_featurizer(args.year, seed_lookup)
-        prob_func = predictors.SkLearnProbabilityFunction(args.probability_model_path, featurizer)
+        prob_func = predictors.HighSeedProbabilityFunction(seed_lookup)
 
 
     evaluator = evaluate.SinglePerturbationRobustnessEvaluator(prob_func, predictor)

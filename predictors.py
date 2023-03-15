@@ -5,6 +5,7 @@ import numpy as np
 
 import bracket_types
 import classifier_utils
+import kaggle_data_utils
 
 
 class Predictors(enum.Enum):
@@ -16,6 +17,7 @@ class Predictors(enum.Enum):
 
 class ProbabilityModels(enum.Enum):
     SKLEARN = "sklearn"
+    HIGH_SEED = "high_seed"
 
     def __str__(self) -> str:
         return self.value
@@ -86,4 +88,21 @@ class SkLearnProbabilityFunction(bracket_types.ProbabilityFunction):
             team = team_one if label == 1 else team_two
             out[team] = p
         return out
+
+class HighSeedProbabilityFunction(bracket_types.ProbabilityFunction):
+    def __init__(self, seed_lookup: dict[str, bracket_types.Seed]) -> None:
+        self.seed_lookup = seed_lookup
+        self.probability_table = kaggle_data_utils.build_seed_win_probabilities()
+
+    def get_prob(self, team_one: str, team_two: str) -> dict[str, float]:
+        seed_one = self.seed_lookup[team_one]
+        seed_two = self.seed_lookup[team_two]
+
+        if seed_one.num in self.probability_table and seed_two.num in self.probability_table[seed_one.num]:
+            return {
+                team_one: self.probability_table[seed_one.num][seed_two.num],
+                team_two: 1 - self.probability_table[seed_one.num][seed_two.num]
+            }
+        else:
+            return {team_one: 0.5, team_two: 0.5}
 
