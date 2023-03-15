@@ -8,6 +8,9 @@ import bracket_types
 
 
 class BracketBuilder:
+    CSV_FIELDS = ['game_name', 'team_one', 'team_two', 'winner']
+    REGIONS = ['W', 'X', 'Y', 'Z']
+
     def __init__(self, predict_func: bracket_types.PredictionFunction):
         """
         season_data is a dictionary mapping team name to team stats
@@ -49,11 +52,11 @@ class BracketBuilder:
                 regions[region][seed.num - 1] = team_name
 
         first_round: list[str] = []
-        for i, region in enumerate(['W', 'X', 'Y', 'Z']):
+        for j, region in enumerate(self.REGIONS):
             region_list = regions[region]
-            game_num = 8 * i
-            for i in [0, 7, 4, 3, 5, 2, 6, 1]:
-                team_one, team_two = region_list[i], region_list[-i-1]
+            game_num = 8 * j
+            for j in [0, 7, 4, 3, 5, 2, 6, 1]:
+                team_one, team_two = region_list[j], region_list[-j-1]
                 game_data = bracket_types.GameData(team_one, team_two, round_num=1)
                 game_name = f'1-{game_num}'
                 graph.add_node(game_name, game_data=game_data, round_num = game_data.round_num)
@@ -98,17 +101,20 @@ class BracketBuilder:
 
         return graph
 
-    @staticmethod
-    def write_to_csv(bracket: networkx.DiGraph, name: str, outfile: pathlib.Path):
+    @classmethod
+    def write_to_csv(cls, bracket: networkx.DiGraph, name: str, outfile: pathlib.Path):
         rows: list[dict[str, str | None]] = []
         for node in bracket:
             game_data: bracket_types.GameData = bracket.nodes[node][bracket_types.GAME_DATA_KEY]
-            rows.append({
+            row = {
                 'game_name': node,
                 'team_one': game_data.team_one,
                 'team_two': game_data.team_two,
-                'winner': game_data.winner
-            })
+            }
+
+            if game_data.winner is not None:
+                row['winner'] = game_data.winner
+            rows.append(row)
 
         def sort_func(x: dict[str, str | None]) -> tuple[int, int]:
             game_name = x['game_name']
@@ -122,8 +128,51 @@ class BracketBuilder:
         sorted_rows = sorted(rows, key=sort_func)
 
         with open(outfile / f'{name}.csv', 'w') as f:
-            writer = csv.DictWriter(f, ['game_name', 'team_one', 'team_two', 'winner'])
+            writer = csv.DictWriter(f, cls.CSV_FIELDS)
             writer.writeheader()
 
             writer.writerows(sorted_rows)
+
+    @classmethod
+    def read_from_csv(cls, infile: pathlib.Path) -> networkx.DiGraph:
+        bracket = networkx.DiGraph()
+        with open(infile, 'r') as f:
+            reader = csv.DictReader(f, cls.CSV_FIELDS)
+            
+            # Add all the nodes into the graph
+            for i, game in enumerate(reader):
+                if i == 0:
+                    continue
+                game_name = game['game_name']
+                round_num: int = 0
+                if 'play' not in game_name:
+                    comps = game_name.split('-')
+                    round_num = int(comps[0])
+
+                game_data = bracket_types.GameData(team_one=game['team_one'], team_two=game['team_two'], round_num=round_num, winner=game.get('winner'))
+                bracket.add_node(game_name, game_data=game_data, round_num=game_data.round_num)
+
+        # Populate the play-in round edges
+        for i, region in enumerate(cls.REGIONS):
+            play_in_winner = bracket.nodes[f'play_in_{region}'][bracket_types.GAME_DATA_KEY].winner
+            assert play_in_winner
+            for j in range(8):
+                game_num = 8 * i + j
+                game_name = f'1-{game_num}'
+                assert game_name in bracket
+
+                game_data: bracket_types.GameData = bracket.nodes[game_name][bracket_types.GAME_DATA_KEY]
+                if play_in_winner == game_data.team_one or play_in_winner == game_data.team_two:
+                    bracket.add_edge(f'play_in_{region}', game_name)
+
+        # Populate the rest of the round edges
+        for round_num in range(1, 6):
+            num_games = 2 ** (6 - round_num)
+            for game_num in range(num_games):
+                next_round_game = f'{round_num + 1}-{game_num // 2}'
+                current_round_game = f'{round_num}-{game_num}'
+                bracket.add_edge(current_round_game, next_round_game)
+
+        return bracket
+
 

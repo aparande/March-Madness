@@ -12,6 +12,17 @@ import kaggle_data_utils
 import predictors
 
 
+def _visualize(bracket:  networkx.DiGraph):
+    labels: dict[str, str] = {}
+    for node in bracket:
+        print(node, bracket.nodes[node])
+        game: bracket_types.GameData = bracket.nodes[node][bracket_types.GAME_DATA_KEY]
+        labels[node] = f'{game.winner}'
+
+    layout = networkx.multipartite_layout(bracket, subset_key='round_num', align='vertical', scale=4)
+    networkx.draw_networkx(bracket, labels=labels, node_size=50, font_size=8, pos=layout, verticalalignment='bottom', font_weight='bold')
+    plt.show()
+
 def _create_sklearn_featurizer(year: int, seed_lookup: dict[str, bracket_types.Seed]) -> predictors.SkLearnFeaturizer:
     lookup = kaggle_data_utils.build_team_lookup(year)
     means = np.load(f"{year}/data-mean.npy")
@@ -42,11 +53,16 @@ def _create_bracket_args(subparser):
     parser.add_argument('--visualize', action='store_true')
     parser.add_argument('--out-path', type=pathlib.Path, default=None)
 
+def _create_visualize_args(subparser):
+    parser = subparser.add_parser('visualize', help='Visualize a bracket')
+    parser.add_argument('bracket_path', type=pathlib.Path)
+
 def _create_and_parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     subparsers = parser.add_subparsers(help='Options', required=True, dest='cmd')
     _create_bracket_args(subparsers)
+    _create_visualize_args(subparsers)
     
     return parser.parse_args()
 
@@ -62,24 +78,22 @@ def create_bracket(args: argparse.Namespace):
         return
 
     if args.visualize:
-        labels: dict[str, str] = {}
-        for node in bracket:
-            game = bracket.nodes[node][bracket_types.GAME_DATA_KEY]
-            labels[node] = f'{game.winner}'
-
-        layout = networkx.multipartite_layout(bracket, subset_key='round_num', align='vertical', scale=4)
-        networkx.draw_networkx(bracket, labels=labels, node_size=50, font_size=8, pos=layout, verticalalignment='bottom', font_weight='bold')
-        plt.show()
+        _visualize(bracket)
 
     if args.out_path is not None:
         builder.BracketBuilder.write_to_csv(bracket, args.name, args.out_path)
 
+def visualize_bracket(args: argparse.Namespace) -> None:
+    bracket = builder.BracketBuilder.read_from_csv(args.bracket_path)
+    _visualize(bracket)
 
 def main():
     args = _create_and_parse_args()
 
     if args.cmd == 'create':
         create_bracket(args)
+    elif args.cmd == 'visualize':
+        visualize_bracket(args)
 
     # prob_func = predictors.SkLearnProbabilityFunction(args.prob_model_path, featurizer)
     # evaluator = evaluate.SinglePerturbationRobustnessEvaluator(prob_func, predictor)
