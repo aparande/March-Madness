@@ -1,11 +1,13 @@
 #!/usr/bin/env python -W ignore::DeprecationWarning
-from builder import BracketBuilder
-from classifier_utils import load_classifier
+import sys
 
-from kaggle_data_utils import build_team_lookup
 import numpy as np
 import torch
-import sys
+
+from builder import BracketBuilder
+from classifier_utils import load_classifier
+from kaggle_data_utils import build_team_lookup
+
 
 def predict_sklearn(clf_files, use_seeds):
   clfs = [load_classifier(name=filename) for filename in clf_files]
