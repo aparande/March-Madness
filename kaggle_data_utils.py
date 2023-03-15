@@ -1,10 +1,14 @@
-import pandas as pd
-import numpy as np
+from typing import NamedTuple, cast
 
-from sklearn.model_selection import train_test_split
+import numpy as np
+import pandas as pd
 import sklearn.utils
+from sklearn.model_selection import train_test_split
+
+import bracket_types
 
 FEATURES = ["Seed", "PPG", "WPP", "OE", "DE", "FGE", "OR_per", "EPR", "Margin"]
+
 
 def build_dataset(relative_path=".", out_path="../2022", normalize = False, one_hot_labels = False):
   """
@@ -38,7 +42,7 @@ def build_dataset(relative_path=".", out_path="../2022", normalize = False, one_
     np.save(f"{out_path}/data-std.npy", trainX.std(axis=0))
   return trainX, trainY
 
-def build_team_lookup(year):
+def build_team_lookup(year) -> dict[str, np.ndarray]:
   teams = pd.read_csv("data/kaggle_data/MTeams.csv").drop(labels=["FirstD1Season", "LastD1Season"], axis=1)
   stats = pd.read_csv("data/processed-data/all-season-stats.csv")
   stats = stats[stats.Season == year]
@@ -50,6 +54,15 @@ def build_team_lookup(year):
 
   return lookup_dict
 
+def get_seeds(year: int, relative_path='.') -> dict[str, bracket_types.Seed]:
+  teams = pd.read_csv(f'{relative_path}/data/kaggle_data/MTeams.csv').drop(labels=['FirstD1Season', 'LastD1Season'], axis=1)
+  seeds = pd.read_csv(f'{relative_path}/data/kaggle_data/MNCAATourneySeeds.csv')
+  seeds = seeds[seeds.Season == year]
+  lookup = pd.merge(teams, seeds, on="TeamID", how="inner")
 
+  lookup_dict: dict[str, bracket_types.Seed] = dict()
+  for row, data in lookup.iterrows():
+    lookup_dict[cast(str, data["TeamName"])] = bracket_types.Seed.from_kaggle_str(cast(str, data["Seed"]))
 
+  return lookup_dict
 

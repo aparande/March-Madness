@@ -1,12 +1,17 @@
-import pandas as pd
-import numpy as np
-
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import accuracy_score, classification_report
-
 import pickle
-import torch
+import sys
+
+import numpy as np
+import pandas as pd
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split
+
+# TODO: Remove workaround for my strange Python environment
+if sys.version_info.minor <= 9:
+    import torch
 
 #Cross validates the classifier to check accuracy
 def check_classifier(clf, features, labels):
