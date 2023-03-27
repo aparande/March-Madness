@@ -17,22 +17,6 @@ class BracketBuilder:
         """
         self.predict_func = predict_func
 
-    def build_interactive(self):
-        team_one = input("Enter Team One: ")
-        team_two = input("Enter Team Two: ")
-
-        try:
-            winner = self.predict_func(team_one, team_two)
-            print(winner)
-        except LookupError as e:
-            print(e)
-        finally:
-            shouldContinue = input("Do you want to continue (Y/N): ")
-            if shouldContinue == "Y":
-                self.build_interactive()
-            else:
-                return
-
     def _build_first_round(self, graph: networkx.DiGraph, seeds: dict[str, bracket_types.Seed]) -> list[str]:
         regions: dict[str, list[str]] = defaultdict(lambda: ["" for _ in range(16)])
         play_in_winners: set[str] = set()
