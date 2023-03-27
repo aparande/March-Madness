@@ -6,7 +6,6 @@ import networkx
 
 import bracket_types
 
-
 class BracketBuilder:
     CSV_FIELDS = ['game_name', 'team_one', 'team_two', 'winner']
     REGIONS = ['W', 'X', 'Y', 'Z']
@@ -51,7 +50,7 @@ class BracketBuilder:
                 game_num += 1
 
         return first_round
-        
+
 
     def build(self, seeds: dict[str, bracket_types.Seed]) -> networkx.DiGraph:
         graph = networkx.DiGraph()
@@ -91,10 +90,10 @@ class BracketBuilder:
         for node in bracket:
             game_data: bracket_types.GameData = bracket.nodes[node][bracket_types.GAME_DATA_KEY]
             row = {
-                'game_name': node,
-                'team_one': game_data.team_one,
-                'team_two': game_data.team_two,
-            }
+                    'game_name': node,
+                    'team_one': game_data.team_one,
+                    'team_two': game_data.team_two,
+                    }
 
             if game_data.winner is not None:
                 row['winner'] = game_data.winner
@@ -122,7 +121,7 @@ class BracketBuilder:
         bracket = networkx.DiGraph()
         with open(infile, 'r') as f:
             reader = csv.DictReader(f, cls.CSV_FIELDS)
-            
+
             # Add all the nodes into the graph
             for i, game in enumerate(reader):
                 if i == 0:

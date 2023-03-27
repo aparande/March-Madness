@@ -29,8 +29,8 @@ def build_dataset(relative_path=".", out_path="../2022", normalize = False, one_
 
   trainX = df[FEATURES].values
 
-  trainY = 2 * np.random.randint(2, size=trainX.shape[0]) - 1 # Generate labels of -1 and 1
-  trainX = trainX * trainY[:, np.newaxis] # Randomly decide whether team 1 wins or team 2 wins using the label (otherwise team 1 always wins)
+  trainY: np.ndarray = 2 * np.random.randint(2, size=trainX.shape[0]) - 1 # Generate labels of -1 and 1
+  trainX: np.ndarray = trainX * trainY[:, np.newaxis] # Randomly decide whether team 1 wins or team 2 wins using the label (otherwise team 1 always wins)
 
   if one_hot_labels:
     trainY = (trainY + 1) // 2
