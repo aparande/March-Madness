@@ -28,7 +28,7 @@ def predict_lda(lda_file, use_seed, data_means=None, data_stds=None):
       features /= data_stds
 
     if not use_seed:
-      features = featuresa[1:]
+      features = features[1:]
     features = features.reshape((1, -1))
 
     prob_loser_wins, prob_winner_wins = clf.predict_proba(features)[0]

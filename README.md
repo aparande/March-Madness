@@ -14,18 +14,12 @@ The sheets named with a specific season (i.e 2018-2019) contain the statistics f
 
 All data was taken from https://www.teamrankings.com/ncb/team-stats/
 
-### 2021 Tournament
-All data was taken from [Kaggle](https://www.kaggle.com/c/ncaam-march-mania-2021).
-
-## Python Files
-- `custom_data_utils.py` contains helper methods for extracting data, training the classifier, and saving it to disk for custom data stored in the `MasterData.xlsx` spreadsheet.
-- `builder.py` contains a class called BracketBuilder which encapsulates the functionality of building a bracket based on SKLearn or PyTorch classifiers.
-- `interactive_builder.py` creates a BracketBuilder object and begins prompting the user to build a bracket.
-- `dist_builder.py` build a bracket using an LDA classifier to predict probabilities. It then runs Maximimum Likelihood Estimation to generate the winners of each match.
-- `kaggle_data_utils.py` contains helper methods for processing data from the Kaggle March Madness dataset.
+### Tournaments 2021 onwards
+All data was taken from [Kaggle](https://www.kaggle.com/) using the dataset from that year.
 
 ## Results
 - [2018 Results](2018/README.md)
 - [2019 Results](2019/README.md)
 - [2021 Results](2021/README.md)
 - [2022 Results](2022/README.md)
+- [2023 Results](2023/README.md)
