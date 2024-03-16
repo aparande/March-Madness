@@ -144,10 +144,5 @@ def main():
     elif args.cmd == 'compare':
         compare_brackets(args)
 
-    # prob_func = predictors.SkLearnProbabilityFunction(args.prob_model_path, featurizer)
-    # evaluator = evaluate.SinglePerturbationRobustnessEvaluator(prob_func, predictor)
-    # score = evaluator.evaluate(bracket)
-    # print(f'Bracket score is {score}')
-
 if __name__ == '__main__':
     main()
