@@ -17,6 +17,33 @@ All data was taken from https://www.teamrankings.com/ncb/team-stats/
 ### Tournaments 2021 onwards
 All data was taken from [Kaggle](https://www.kaggle.com/) using the dataset from that year.
 
+To download the data via the Kaggle CLI
+```sh
+kaggle competitions download march-machine-learning-mania-2024 -p data
+unzip -d data/kaggle_data march-machine-learning-mania-2024.zip
+```
+
+Once the data is downloaded, you can run the feature extraction via
+```sh
+python3 summarize_kaggle.py
+```
+
+## Getting started for a new year
+1. Set up the directory for the year
+```
+mkdir <year>
+cp <prev-year>/Training.ipynb <year>
+```
+2. Train a classifier via the new `Training.ipynb` we just created and save the
+   model. Only SK learn classifiers are currently supported currently.
+```
+python3 main.py create --year <year> --predictor sklearn_seed --predictor-path <path-to-pkl>
+```
+3. Inspect the bracket
+```
+python3 main.py visualize <bracket-path>
+```
+
 ## Results
 - [2018 Results](2018/README.md)
 - [2019 Results](2019/README.md)
