@@ -2,9 +2,9 @@ import pandas as pd
 
 # Script to process Kaggle Data
 
-GAME_STATS = ["FGM", "FGA", "FGM3", "FGA3", "FTM", "FTA", "OR", "DR", "Ast", "TO", "Stl", "Blk", "PF", "Score", "TeamID"] 
-WINNER_STATS = [f"W{stat}" for stat in GAME_STATS]
-LOSER_STATS = [f"L{stat}" for stat in GAME_STATS]
+KAGGLE_FIELDS = ["FGM", "FGA", "FGM3", "FGA3", "FTM", "FTA", "OR", "DR", "Ast", "TO", "Stl", "Blk", "PF", "Score", "TeamID"] 
+WINNER_KAGGLE_FIELDS = [f"W{stat}" for stat in KAGGLE_FIELDS]
+LOSER_KAGGLE_FIELDS = [f"L{stat}" for stat in KAGGLE_FIELDS]
 
 def load_teams():
   teams_df = pd.read_csv("data/kaggle_data/MTeams.csv")
@@ -31,8 +31,8 @@ def summarize_tournaments():
   out = out[["Season", "WTeamID", "LTeamID", "Seed_W", "Seed_L"]]
   return out
 
-def load_regular_games():
-  games_df = pd.read_csv("data/kaggle_data/MRegularSeasonDetailedResults.csv")
+def load_regular_games(relative_path: str = '.'):
+  games_df = pd.read_csv(f"{relative_path}/data/kaggle_data/MRegularSeasonDetailedResults.csv")
   return games_df.drop(labels=["DayNum", "WLoc", "NumOT"], axis=1)
 
 def process_raw_stats(df, prefix):
@@ -40,9 +40,9 @@ def process_raw_stats(df, prefix):
   Select the columns pertaining to prefix (either W or L) and do some basic processing
   """
   # Remove unnecessary columns
-  stats_df = df.drop(labels = LOSER_STATS if prefix == "W" else WINNER_STATS, axis=1)
-  stats_df[GAME_STATS] = stats_df[WINNER_STATS if prefix == "W" else LOSER_STATS]
-  stats_df = stats_df.drop(labels = WINNER_STATS if prefix == "W" else LOSER_STATS, axis=1)
+  stats_df = df.drop(labels = LOSER_KAGGLE_FIELDS if prefix == "W" else WINNER_KAGGLE_FIELDS, axis=1)
+  stats_df[KAGGLE_FIELDS] = stats_df[WINNER_KAGGLE_FIELDS if prefix == "W" else LOSER_KAGGLE_FIELDS]
+  stats_df = stats_df.drop(labels = WINNER_KAGGLE_FIELDS if prefix == "W" else LOSER_KAGGLE_FIELDS, axis=1)
 
   # Compute 2 Pointers Made and Attempted
   stats_df["FGM2"] = stats_df["FGM"] - stats_df["FGM3"]
@@ -57,8 +57,8 @@ def process_raw_stats(df, prefix):
 
   return stats_df
   
-def compute_stats():
-  all_games = load_regular_games()
+def compute_stats(relative_path: str = '.'):
+  all_games = load_regular_games(relative_path)
 
   winner_df = process_raw_stats(all_games, "W")
   loser_df = process_raw_stats(all_games, "L")
@@ -70,6 +70,7 @@ def compute_stats():
   stats_df["Margin"] = stats_df["Score"] - stats_df["Opp_Score"]
   means = stats_df.groupby(["Season", "TeamID"], as_index=False).mean()[["Season", "TeamID", "Win", "Score", "Margin"]]
 
+  # Overlapping columns will use the suffixes to disambiguate
   all_stats = pd.merge(sum_stats, means, on=["Season", "TeamID"], how='inner', suffixes=["_sum", "_mean"])
  
   all_stats["PPG"] = all_stats["Score_mean"]
@@ -82,7 +83,7 @@ def compute_stats():
 
   all_stats.drop(labels=["Win"], axis=1)
 
-  return all_stats[["Season", "TeamID", "PPG", "WPP", "OE", "DE", "FGE", "OR_per", "EPR", "Margin"]]
+  return all_stats
 
 if __name__ == '__main__':
   tournaments = summarize_tournaments()

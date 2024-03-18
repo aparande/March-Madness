@@ -1,47 +1,106 @@
+from __future__ import annotations
+
 from collections import defaultdict
-from typing import NamedTuple, cast
+from typing import cast
 
 import numpy as np
 import pandas as pd
 import sklearn.utils
-from sklearn.model_selection import train_test_split
 
 import bracket_types
 
-FEATURES = ["Seed", "PPG", "WPP", "OE", "DE", "FGE", "OR_per", "EPR", "Margin"]
+RANDOM_STATE = 42
+# Features used prior to 2024
+PRE2024_FEATURES = ["Seed", "PPG", "WPP", "OE", "DE", "FGE", "OR_per", "EPR", "Margin"]
 
+class Dataset():
+    _trainX: np.ndarray
+    _trainY: np.ndarray
+
+    def __init__(self, features: list[str], relative_path: str='.',
+                 one_hot_labels: bool = False, normalize: bool = True):
+        self._feature_names = features[:]
+        self._normalized = normalize
+
+        self._build_data(relative_path, one_hot_labels)
+
+    @property
+    def feature_names(self):
+        return self._feature_names[:]
+
+    @property
+    def trainX(self) -> np.ndarray:
+        return self._trainX
+
+    @property
+    def trainY(self) -> np.ndarray:
+        return self._trainY
+
+    @property
+    def means(self) -> np.ndarray:
+        if self._normalized:
+            return self._means
+        else:
+            return self._trainX.mean(axis=0)
+
+    @property
+    def std(self) -> np.ndarray:
+        if self._normalized:
+            return self._std
+        else:
+            return self._trainX.std(axis=0)
+
+    def _build_data(self, relative_path: str, one_hot_labels: bool):
+        season_stats = pd.read_csv(f"{relative_path}/data/processed-data/all-season-stats.csv")
+        tournament_games = pd.read_csv(f"{relative_path}/data/processed-data/tourney-games.csv")
+
+        df = pd.merge(tournament_games, season_stats, how="inner",
+                      left_on=["Season", "WTeamID"], right_on=["Season",
+                                                               "TeamID"])
+        df = pd.merge(df, season_stats, how="inner", left_on=["Season",
+                                                              "LTeamID"],
+                      right_on=["Season", "TeamID"], suffixes=["_W", "_L"])
+
+        for feature in self._feature_names:
+            df[feature] = df[f"{feature}_W"] - df[f"{feature}_L"]
+
+        trainX = df[self.feature_names].values
+
+        # Generate labels of -1 and 1
+        trainY: np.ndarray = 2 * np.random.randint(2, size=trainX.shape[0]) - 1 
+        # Randomly decide whether team 1 wins or team 2 wins using the label
+        # (otherwise team 1 always wins)
+        trainX: np.ndarray = trainX * trainY[:, np.newaxis] 
+
+        if one_hot_labels:
+            trainY = (trainY + 1) // 2
+
+        self._trainX, self._trainY = sklearn.utils.shuffle(trainX, trainY, random_state=RANDOM_STATE) # type: ignore
+
+        if self._normalized:
+            self._means = cast(np.ndarray, self._trainX).mean(axis=0)
+            self._std = cast(np.ndarray, self._trainX).std(axis=0)
+
+            self._trainX = (self._trainX - self._means) / self._std
+
+    def save_stats(self, out_path: str):
+        np.save(f"{out_path}/data-mean.npy", self.means)
+        np.save(f"{out_path}/data-std.npy", self.std)
 
 def build_dataset(relative_path=".", out_path="../2022", normalize = False, one_hot_labels = False):
-  """
-  Builds a dataset using the Kaggle Data
+  """(LEGACY) Builds a dataset using the Kaggle Data
+
   relative_path is the path to the data directory
   normalize controls whether or not the features are normalized
   one_hot_labels determines whether the labels are one-hot encoded. If one_hot_encoded, 0 = team 2 wins and 1 = team 1 wins, otherwie -1 = team 2 wins and 1 = team 1 wins.
   """
-  season_stats = pd.read_csv(f"{relative_path}/data/processed-data/all-season-stats.csv")
-  tournament_games = pd.read_csv(f"{relative_path}/data/processed-data/tourney-games.csv")
 
-  df = pd.merge(tournament_games, season_stats, how="inner", left_on=["Season", "WTeamID"], right_on=["Season", "TeamID"])
-  df = pd.merge(df, season_stats, how="inner", left_on=["Season", "LTeamID"], right_on=["Season", "TeamID"], suffixes=["_W", "_L"])
-
-  for feature in FEATURES:
-    df[feature] = df[f"{feature}_W"] - df[f"{feature}_L"]
-
-  trainX = df[FEATURES].values
-
-  trainY: np.ndarray = 2 * np.random.randint(2, size=trainX.shape[0]) - 1 # Generate labels of -1 and 1
-  trainX: np.ndarray = trainX * trainY[:, np.newaxis] # Randomly decide whether team 1 wins or team 2 wins using the label (otherwise team 1 always wins)
-
-  if one_hot_labels:
-    trainY = (trainY + 1) // 2
-
-  trainX, trainY = sklearn.utils.shuffle(trainX, trainY)
-
+  dataset = Dataset(PRE2024_FEATURES, relative_path=relative_path,
+                    one_hot_labels=one_hot_labels, normalize=normalize)
   if normalize:
-    trainX = (trainX - trainX.mean(axis=0)) / trainX.std(axis=0)
-    np.save(f"{out_path}/data-mean.npy", trainX.mean(axis=0))
-    np.save(f"{out_path}/data-std.npy", trainX.std(axis=0))
-  return trainX, trainY
+      dataset.save_stats(out_path)
+
+  return dataset.trainX, dataset.trainY
 
 def build_team_lookup(year) -> dict[str, np.ndarray]:
   teams = pd.read_csv("data/kaggle_data/MTeams.csv").drop(labels=["FirstD1Season", "LastD1Season"], axis=1)
