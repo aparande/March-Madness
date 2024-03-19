@@ -10,21 +10,21 @@ def load_teams():
   teams_df = pd.read_csv("data/kaggle_data/MTeams.csv")
   return teams_df[["TeamID", "TeamName"]]
 
-def load_seeds():
-  seeds_df = pd.read_csv("data/kaggle_data/MNCAATourneySeeds.csv")
+def load_seeds(relative_path: str = '.'):
+  seeds_df = pd.read_csv(f"{relative_path}/data/kaggle_data/MNCAATourneySeeds.csv")
   seeds_df = seeds_df[seeds_df.Season >= 2003]
   seeds_df = seeds_df[~seeds_df.Seed.str.contains("a") & ~seeds_df.Seed.str.contains("b")]
   seeds_df["Seed"] = seeds_df["Seed"].apply(lambda x: int(x[1:]))
   return seeds_df
 
-def load_tourney_games_compact():
-  games_df = pd.read_csv("data/kaggle_data/MNCAATourneyCompactResults.csv")
+def load_tourney_games_compact(relative_path: str = '.'):
+  games_df = pd.read_csv(f"{relative_path}/data/kaggle_data/MNCAATourneyCompactResults.csv")
   games_df = games_df[["Season", "WTeamID", "LTeamID"]]
   return games_df[games_df.Season >= 2003]
 
-def summarize_tournaments():
-  seeds = load_seeds()
-  games = load_tourney_games_compact()
+def summarize_tournaments(relative_path:str = '.'):
+  seeds = load_seeds(relative_path)
+  games = load_tourney_games_compact(relative_path)
   win_seeds = pd.merge(games, seeds, how='inner', left_on=["Season", "WTeamID"], right_on=["Season", "TeamID"])
   out = pd.merge(win_seeds, seeds, how='inner', left_on=["Season", "LTeamID"], right_on=["Season", "TeamID"], suffixes=["_W", "_L"])
 
