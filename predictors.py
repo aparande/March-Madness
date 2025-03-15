@@ -11,6 +11,7 @@ import kaggle_data_utils
 class Predictors(enum.Enum):
     SKLEARN_SEED = "sklearn_seed"
     HIGH_SEED = "high_seed"
+    SKLEARN = 'sklearn'
 
     def __str__(self) -> str:
         return self.value
@@ -38,8 +39,11 @@ class HighSeedPredictor(bracket_types.PredictionFunction):
             t1_wins = random.random() > 0.5
             return team_one if t1_wins else team_two
 
-class SkLearnFeaturizer:
-    def __init__(self, team_lookup: dict[str, np.ndarray], seed_lookup: dict[str, bracket_types.Seed], data_means: np.ndarray | None = None, data_stds: np.ndarray | None = None) -> None:
+class SkLearnSeedFeaturizer:
+    def __init__(self, team_lookup: dict[str, np.ndarray], 
+                 seed_lookup: dict[str, bracket_types.Seed], 
+                 data_means: np.ndarray | None = None, 
+                 data_stds: np.ndarray | None = None) -> None:
         self.team_lookup = team_lookup
         self.seed_lookup = seed_lookup
         self.data_means = data_means
@@ -63,8 +67,30 @@ class SkLearnFeaturizer:
     def __call__(self, team_one: str, team_two: str):
         return self._make_features(team_one, team_two)
 
-class SkLearnSeedPredictor(bracket_types.PredictionFunction):
-    def __init__(self, clf_path: str, featurizer: SkLearnFeaturizer) -> None:
+class SkLearnFeaturizer:
+    def __init__(self, team_lookup: dict[str, np.ndarray], 
+                 data_means: np.ndarray | None = None, 
+                 data_stds: np.ndarray | None = None) -> None:
+        self.team_lookup = team_lookup
+        self.data_means = data_means
+        self.data_stds = data_stds
+
+    def _make_features(self, team_one: str, team_two: str) -> np.ndarray:
+        data_one = self.team_lookup[team_one]
+        data_two = self.team_lookup[team_two]
+
+        features = data_one - data_two
+        if self.data_means is not None:
+          features = features - self.data_means
+        if self.data_stds is not None:
+          features = features / self.data_stds
+        return features.reshape((1, -1)) # SKLearn Requirement
+
+    def __call__(self, team_one: str, team_two: str):
+        return self._make_features(team_one, team_two)
+
+class SkLearnPredictor(bracket_types.PredictionFunction):
+    def __init__(self, clf_path: str, featurizer: SkLearnSeedFeaturizer | SkLearnFeaturizer) -> None:
         self.clf = classifier_utils.load_classifier(clf_path)
         self.featurizer = featurizer
 
@@ -76,7 +102,7 @@ class SkLearnSeedPredictor(bracket_types.PredictionFunction):
             return team_two
 
 class SkLearnProbabilityFunction(bracket_types.ProbabilityFunction):
-    def __init__(self, clf_path: str, featurizer: SkLearnFeaturizer) -> None:
+    def __init__(self, clf_path: str, featurizer: SkLearnSeedFeaturizer) -> None:
         self.clf = classifier_utils.load_classifier(clf_path)
         self.featurizer = featurizer
 

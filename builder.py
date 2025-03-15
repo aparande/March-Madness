@@ -6,6 +6,7 @@ import networkx
 
 import bracket_types
 
+
 class BracketBuilder:
     CSV_FIELDS = ['game_name', 'team_one', 'team_two', 'winner']
     REGIONS = ['W', 'X', 'Y', 'Z']
@@ -137,7 +138,11 @@ class BracketBuilder:
 
         # Populate the play-in round edges
         for i, region in enumerate(cls.REGIONS):
-            play_in_winner = bracket.nodes[f'play_in_{region}'][bracket_types.GAME_DATA_KEY].winner
+            play_in_str = f'play_in_{region}'
+            if play_in_str not in bracket.nodes:
+                continue
+
+            play_in_winner = bracket.nodes[play_in_str][bracket_types.GAME_DATA_KEY].winner
             assert play_in_winner
             for j in range(8):
                 game_num = 8 * i + j

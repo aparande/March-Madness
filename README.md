@@ -20,7 +20,7 @@ All data was taken from [Kaggle](https://www.kaggle.com/) using the dataset from
 To download the data via the Kaggle CLI
 ```sh
 kaggle competitions download march-machine-learning-mania-2024 -p data
-unzip -d data/kaggle_data march-machine-learning-mania-2024.zip
+unzip -d data/kaggle_data data/march-machine-learning-mania-2024.zip
 ```
 
 Once the data is downloaded, you can run the feature extraction via
