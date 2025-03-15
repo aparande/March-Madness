@@ -1,0 +1,1 @@
+{"feature_names": ["Score_mean", "DR", "PF", "Blk", "FGA", "Opp_DR", "Margin", "OE"], "normalized": true, "means_path": "/Users/AnmolParande/Documents/Python/March Madness/2024/non-seed-data-data-mean.npy", "std_path": "/Users/AnmolParande/Documents/Python/March Madness/2024/non-seed-data-data-std.npy"}

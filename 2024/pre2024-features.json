@@ -1,0 +1,1 @@
+{"feature_names": ["Seed", "PPG", "WPP", "OE", "DE", "FGE", "OR_per", "EPR", "Margin"], "normalized": true, "means_path": "/Users/AnmolParande/Documents/Python/March Madness/2024/pre2024-features-data-mean.npy", "std_path": "/Users/AnmolParande/Documents/Python/March Madness/2024/pre2024-features-data-std.npy"}
