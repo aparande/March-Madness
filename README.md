@@ -50,3 +50,4 @@ python3 main.py visualize <bracket-path>
 - [2021 Results](2021/README.md)
 - [2022 Results](2022/README.md)
 - [2023 Results](2023/README.md)
+- [2024 Results](2024/README.md)
